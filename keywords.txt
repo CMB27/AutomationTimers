@@ -1,0 +1,14 @@
+Timer	KEYWORD1		
+OnDelay	KEYWORD1		
+OffDelay	KEYWORD1		
+Debounce	KEYWORD1		
+SquareWave	KEYWORD1		
+Edge	KEYWORD1		
+AutomationTimers	KEYWORD1		
+updateMillis	KEYWORD2		
+getCurrentMillis	KEYWORD2		
+reset	KEYWORD2		
+update	KEYWORD2		
+rising	KEYWORD2		
+falling	KEYWORD2		
+change	KEYWORD2		
