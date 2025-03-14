@@ -16,18 +16,22 @@
 
 Timer timer;
 
-const int8_t buttonPin = 2;
+const int8_t button1Pin = 2;
+const int8_t button2Pin = 3;
 
 void setup() {
-  pinMode(buttonPin, INPUT_PULLUP);
+  pinMode(button1Pin, INPUT_PULLUP);
+  pinMode(button2Pin, INPUT_PULLUP);
   Serial.begin(9600);
   while(!Serial);
 }
 
 void loop() {
-  AutomationTimers.updateMillis();
+  AutomationTimers.update();
   
-  if (digitalRead(buttonPin)) timer.reset();
+  if (digitalRead(button1Pin)) timer.reset();
+  //else if (timer < 4294960000) timer = 4294960000;
+  if (!digitalRead(button2Pin)) timer -= 1000;
 
   Serial.print("timer:");
   Serial.print(timer);

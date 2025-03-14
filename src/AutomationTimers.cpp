@@ -1,22 +1,17 @@
 #include "AutomationTimers.h"
 
 
-// Timer
+// AutomationTimersClass
 
-unsigned long Timer::_currentMillis;
+unsigned long AutomationTimersClass::_currentMillis;
 
-void Timer::updateMillis() {
+void AutomationTimersClass::update() {
   _currentMillis = millis();
 }
 
-unsigned long Timer::getCurrentMillis() {
-  return _currentMillis;
-}
 
-void Timer::reset() {
-  _startMillis = _currentMillis;
-  _elapsedMillis = 0;
-}
+
+// Timer
 
 Timer::operator unsigned long() {
   if (_elapsedMillis != ULONG_MAX) {
@@ -25,6 +20,31 @@ Timer::operator unsigned long() {
     else _elapsedMillis = tempElapsedMillis;
   }
   return _elapsedMillis;
+}
+
+unsigned long& Timer::operator = (unsigned long elapsedMillis) {
+  _elapsedMillis = elapsedMillis;
+  _startMillis = _currentMillis - _elapsedMillis;
+  return _elapsedMillis;
+}
+
+unsigned long& Timer::operator += (unsigned long addedMillis) {
+  if (addedMillis < ULONG_MAX - _elapsedMillis) _elapsedMillis += addedMillis;
+  else _elapsedMillis = ULONG_MAX;
+  _startMillis = _currentMillis - _elapsedMillis;
+  return _elapsedMillis;
+}
+
+unsigned long& Timer::operator -= (unsigned long subtractedMillis) {
+  if (subtractedMillis < _elapsedMillis) _elapsedMillis -= subtractedMillis;
+  else _elapsedMillis = 0;
+  _startMillis = _currentMillis - _elapsedMillis;
+  return _elapsedMillis;
+}
+
+void Timer::reset() {
+  _elapsedMillis = 0;
+  _startMillis = _currentMillis;
 }
 
 
@@ -103,9 +123,8 @@ SquareWave::SquareWave(unsigned long onPeriod, unsigned long offPeriod) {
 }
 
 SquareWave::operator bool() {
-  unsigned long currentMillis = Timer::getCurrentMillis();
-  unsigned long elapsedMillis = currentMillis - _startMillis;
-  if (elapsedMillis > _totalPeriod) _startMillis = currentMillis - (currentMillis % _totalPeriod);
+  unsigned long elapsedMillis = _currentMillis - _startMillis;
+  if (elapsedMillis > _totalPeriod) _startMillis = _currentMillis - (_currentMillis % _totalPeriod);
   if (elapsedMillis < _onPeriod) return true;
   return false;
 }
@@ -136,12 +155,3 @@ bool Edge::change() {
 
 
 
-// AutomationTimersClass
-
-void AutomationTimersClass::updateMillis() {
-  Timer::updateMillis();
-}
-
-unsigned long AutomationTimersClass::getCurrentMillis() {
-  return Timer::getCurrentMillis();
-}

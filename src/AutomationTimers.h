@@ -7,14 +7,21 @@
 #define ULONG_MAX ((unsigned long)0 - 1)
 #endif
 
-class Timer {
+class AutomationTimersClass {
   public:
-    static void updateMillis();
-    static unsigned long getCurrentMillis();
-    void reset();
-    operator unsigned long();
-  private:
+    void update();
+  protected:
     static unsigned long _currentMillis;
+};
+
+class Timer : private AutomationTimersClass {
+  public:
+    operator unsigned long();
+    unsigned long & operator = (unsigned long elapsedMillis);
+    unsigned long & operator += (unsigned long addedMillis);
+    unsigned long & operator -= (unsigned long subtractedMillis);
+    void reset();
+  private:
     unsigned long _startMillis = 0;
     unsigned long _elapsedMillis;
 };
@@ -52,7 +59,7 @@ class Debounce {
     bool _output;
 };
 
-class SquareWave {
+class SquareWave : private AutomationTimersClass {
   public:
     SquareWave(unsigned long totalPeriod, float dutyCycle = 0.5);
     SquareWave(unsigned long onPeriod, unsigned long offPeriod);
@@ -72,12 +79,6 @@ class Edge {
   private:
     bool _currentValue;
     bool _previousValue;
-};
-
-class AutomationTimersClass {
-  public:
-    void updateMillis();
-    unsigned long getCurrentMillis();
 };
 
 extern AutomationTimersClass AutomationTimers;
