@@ -17,9 +17,9 @@ class AutomationTimersClass {
 class Timer : private AutomationTimersClass {
   public:
     operator unsigned long();
-    unsigned long & operator = (unsigned long elapsedMillis);
-    unsigned long & operator += (unsigned long addedMillis);
-    unsigned long & operator -= (unsigned long subtractedMillis);
+    //unsigned long & operator = (unsigned long elapsedMillis);
+    //unsigned long & operator += (unsigned long addedMillis);
+    //unsigned long & operator -= (unsigned long subtractedMillis);
     void reset();
   private:
     unsigned long _startMillis = 0;

@@ -22,25 +22,31 @@ Timer::operator unsigned long() {
   return _elapsedMillis;
 }
 
+/*
 unsigned long& Timer::operator = (unsigned long elapsedMillis) {
   _elapsedMillis = elapsedMillis;
   _startMillis = _currentMillis - _elapsedMillis;
   return _elapsedMillis;
 }
+*/
 
+/*
 unsigned long& Timer::operator += (unsigned long addedMillis) {
   if (addedMillis < ULONG_MAX - _elapsedMillis) _elapsedMillis += addedMillis;
   else _elapsedMillis = ULONG_MAX;
   _startMillis = _currentMillis - _elapsedMillis;
   return _elapsedMillis;
 }
+*/
 
+/*
 unsigned long& Timer::operator -= (unsigned long subtractedMillis) {
   if (subtractedMillis < _elapsedMillis) _elapsedMillis -= subtractedMillis;
   else _elapsedMillis = 0;
   _startMillis = _currentMillis - _elapsedMillis;
   return _elapsedMillis;
 }
+*/
 
 void Timer::reset() {
   _elapsedMillis = 0;

@@ -28,39 +28,143 @@ It relies on [millis()](https://docs.arduino.cc/language-reference/en/functions/
 
 
 
-## Methods
+## Classes
 
-### Timer
-A `Timer` object acts like a special variable type that always counts up in milliseconds.  
-I think the best way to explain how this class works is with an example.
+<details><summary id="timer-1"><strong>Timer</strong></summary><blockquote>
+
+### Description
+A `Timer` object acts like a read-only `unsigned long` that always counts up in milliseconds.
+It can be reset to 0 using the `reset()` method.
+The value of the `Timer` is prevented from overflowing; once the timer reaches the highest value a `unsigned long` can hold, it will stay there until reset.
+
+### Methods
+
+<details><summary id="timer-2"><strong>Timer</strong> <em>constructor</em></summary><blockquote>
+
+### Description
+Creates a `Timer` object.
+
+### Example
 ``` C++
-# include <AutomationTimers.h>
-
-// This creates a Timer object
 Timer myTimer;
+```
 
-void setup() {
-  pinMode(2, INPUT_PULLUP);
-  Serial.begin(9600);
-}
+</blockquote></details>
 
-void loop() {
-  
-  // AutomationTimers.update() is what actually updates the timer value.
-  // It should be run once per loop.
-  // It only needs to be run once, even when using multiple Timer objects.
-  AutomationTimers.update();
-  
-  // If pin 2 is HIGH, the timer will be reset to 0, so the timer only counts up when pin 2 is LOW.
-  if (digitalRead(2)) myTimer.reset();
+<details><summary id="timer-3"><strong>Timer</strong> <em>operator</em></summary><blockquote>
 
-  // This will print the timer value in milliseconds.
-  Serial.println(myTimer);
-  
+### Description
+Returns the value of the timer in milliseconds.
+
+### Returns
+The value of the timer. Data type: `unsigned long`.
+
+### Example
+``` C++
+if (myTimer >= 2000) {
+  // do something
 }
 ```
-In the example above, the data type `myTimer` returns is an `unsigned long`.
-This value is prevented from overflowing; once the timer reaches the highest value a `unsigned long` can hold, it will stay there until reset.
 
+</blockquote></details>
+
+
+<details><summary id="timer-reset"><strong>reset()</strong></summary><blockquote>
+
+### Description
+Resets the timer to 0.
+
+### Example
+``` C++
+if (myTimer >= 2000) {
+  myTimer.reset();
+  // do something else
+}
+```
+
+</blockquote></details>
+
+
+### Note
 `Timer` is utilized in the `OnDelay`, `OffDelay`, and `Debounce` classes.
 
+</blockquote></details>
+
+
+
+<details><summary id="ondelay"><strong>OnDelay</strong></summary><blockquote>
+
+
+### Description
+
+```
+IN: ___/""""""""""""""""""\___
+       |
+OUT:___|_________/""""""""\___
+       |         |
+       |<-DELAY->|
+```
+
+### Methods
+
+<details><summary id="ondelay-1"><strong>OnDelay</strong> <em>constructor</em></summary><blockquote>
+
+### Description
+Creates an `OnDelay` object.
+
+### Syntax
+`Ondelay(delay)`
+
+### Parameter
+`delay`: the delay in milliseconds to wait before setting the output `true`. Allowed data type: `unsigned long`.
+
+### Example
+``` C++
+OnDelay myOnDelay(1000);
+```
+
+</blockquote></details>
+
+
+<details><summary id="ondelay-2"><strong>OnDelay</strong> <em>operator</em></summary><blockquote>
+
+### Description
+Returns the value of the output.
+
+### Returns
+The value of the output. Data type: `bool`.
+
+### Example
+``` C++
+if (myOnDelay) {
+  // do something
+}
+```
+
+</blockquote></details>
+
+
+<details><summary id="ondelay-update"><strong>update()</strong></summary><blockquote>
+
+### Description
+Updates the input of an `OnDelay` object.
+
+### Syntax
+`OnDelay.update(input)`
+
+### Parameter
+`input`: the input value. Allowed data type `bool`.
+
+### Returns
+The value of the output. Data type: `bool`.  
+*Reading the output is optional.*
+
+### Example
+``` C++
+bool output = myOnDelay.update(input);
+```
+
+</blockquote></details>
+
+
+</blockquote></details>
