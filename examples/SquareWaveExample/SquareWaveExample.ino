@@ -7,6 +7,8 @@
   
   Created: 2025-03-08
   By: C. M. Bulliner
+  Last Modified: 2025-03-22
+  By: C. M. Bulliner
   
 */
 
@@ -14,13 +16,13 @@
 
 const unsigned long onPeriod = 1000;
 const unsigned long offPeriod = 1000;
-SquareWave squareWave(onPeriod, offPeriod);
+SquareWave mySquareWave(onPeriod, offPeriod);
 
 // alternatively
 /*
 const unsigned long totalPeriod = 2000;
 const float dutyCycle = 0.5;
-SquareWave squareWave(totalPeriod, dutyCycle);
+SquareWave mySquareWave(totalPeriod, dutyCycle);
 */
 
 void setup() {
@@ -28,6 +30,6 @@ void setup() {
 }
 
 void loop() {
-  AutomationTimers.updateMillis();
-  digitalWrite(LED_BUILTIN, squareWave);
+  AutomationTimers.update();
+  digitalWrite(LED_BUILTIN, mySquareWave);
 }

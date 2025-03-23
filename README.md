@@ -1,6 +1,6 @@
 # AutomationTimers
 This is an Arduino library for managing event timing.
-It provides intuitive tools for creating non-blocking timing events in your code.
+It provides *relatively* intuitive tools for creating non-blocking timing events in your code.
 
 This library consists of a collection of classes:
 - `Timer`: counts up in milliseconds, can be reset
@@ -28,18 +28,79 @@ It relies on [millis()](https://docs.arduino.cc/language-reference/en/functions/
 
 
 
+## Method
+
+<details><summary id="automationtimers-update"><strong>update()</strong></summary><blockquote>
+
+### Description
+Updates the time for all classes in this library except `Edge`.
+`Edge` is event based, not time based.
+This is usually run once at the beginning of `loop()`.
+
+### Syntax
+`AutomationTimers.update()`
+
+### Example
+``` C++
+#include <AutomationTimers.h>
+
+void setup() {
+  // run setup stuff here
+}
+
+void loop() {
+  AutomationTimers.update();
+  // run other loop stuff here
+}
+```
+</blockquote></details>
+
+
+
+
+
 ## Classes
 
-<details><summary id="timer-1"><strong>Timer</strong></summary><blockquote>
+
+
+<details><summary id="timer"><strong>Timer</strong></summary><blockquote>
 
 ### Description
 A `Timer` object acts like a read-only `unsigned long` that always counts up in milliseconds.
 It can be reset to 0 using the `reset()` method.
 The value of the `Timer` is prevented from overflowing; once the timer reaches the highest value a `unsigned long` can hold, it will stay there until reset.
 
+### Example
+``` C++
+#include <AutomationTimers.h>
+
+Timer myTimer;
+
+void setup() {
+  pinMode(2, INPUT_PULLUP);
+  Serial.begin(9600);
+}
+
+void loop() {
+
+  // AutomationTimers.update() is what actually updates the timer value.
+  // It should be run once per loop.
+  // It only needs to be run once, even when using multiple Timer objects.
+  AutomationTimers.update();
+  
+  // If pin 2 is HIGH, the timer will be reset to 0, so the timer only counts up when pin 2 is LOW.
+  if (digitalRead(2)) myTimer.reset();
+
+  // This will print the timer value in milliseconds.
+  Serial.println(myTimer);
+
+  delay(50);
+}
+```
+
 ### Methods
 
-<details><summary id="timer-2"><strong>Timer</strong> <em>constructor</em></summary><blockquote>
+<details><summary id="timer-constructor"><strong>Timer</strong> <em>constructor</em></summary><blockquote>
 
 ### Description
 Creates a `Timer` object.
@@ -51,13 +112,13 @@ Timer myTimer;
 
 </blockquote></details>
 
-<details><summary id="timer-3"><strong>Timer</strong> <em>operator</em></summary><blockquote>
+<details><summary id="timer-operator"><strong>Timer</strong> <em>operator</em></summary><blockquote>
 
 ### Description
 Returns the value of the timer in milliseconds.
 
 ### Returns
-The value of the timer. Data type: `unsigned long`.
+Data type: `unsigned long`.
 
 ### Example
 ``` C++
@@ -67,7 +128,6 @@ if (myTimer >= 2000) {
 ```
 
 </blockquote></details>
-
 
 <details><summary id="timer-reset"><strong>reset()</strong></summary><blockquote>
 
@@ -92,28 +152,30 @@ if (myTimer >= 2000) {
 
 
 
-<details><summary id="ondelay"><strong>OnDelay</strong></summary><blockquote>
 
+
+<details><summary id="ondelay"><strong>OnDelay</strong></summary><blockquote>
 
 ### Description
 
 ```
-IN: ___/""""""""""""""""""\___
-       |
-OUT:___|_________/""""""""\___
-       |         |
-       |<-DELAY->|
+INPUT:  ___/""""""""""""""""""\___
+           |
+OUTPUT: ___|_________/""""""""\___
+           |         |
+           |<-DELAY->|
 ```
+
 
 ### Methods
 
-<details><summary id="ondelay-1"><strong>OnDelay</strong> <em>constructor</em></summary><blockquote>
+<details><summary id="ondelay-constructor"><strong>OnDelay</strong> <em>constructor</em></summary><blockquote>
 
 ### Description
 Creates an `OnDelay` object.
 
 ### Syntax
-`Ondelay(delay)`
+`OnDelay(delay)`
 
 ### Parameter
 `delay`: the delay in milliseconds to wait before setting the output `true`. Allowed data type: `unsigned long`.
@@ -125,14 +187,13 @@ OnDelay myOnDelay(1000);
 
 </blockquote></details>
 
-
-<details><summary id="ondelay-2"><strong>OnDelay</strong> <em>operator</em></summary><blockquote>
+<details><summary id="ondelay-operator"><strong>OnDelay</strong> <em>operator</em></summary><blockquote>
 
 ### Description
 Returns the value of the output.
 
 ### Returns
-The value of the output. Data type: `bool`.
+Data type: `bool`.
 
 ### Example
 ``` C++
@@ -143,7 +204,6 @@ if (myOnDelay) {
 
 </blockquote></details>
 
-
 <details><summary id="ondelay-update"><strong>update()</strong></summary><blockquote>
 
 ### Description
@@ -153,7 +213,7 @@ Updates the input of an `OnDelay` object.
 `OnDelay.update(input)`
 
 ### Parameter
-`input`: the input value. Allowed data type `bool`.
+`input`: Allowed data type `bool`.
 
 ### Returns
 The value of the output. Data type: `bool`.  
@@ -162,6 +222,331 @@ The value of the output. Data type: `bool`.
 ### Example
 ``` C++
 bool output = myOnDelay.update(input);
+```
+
+</blockquote></details>
+
+
+</blockquote></details>
+
+
+
+
+
+<details><summary id="offdelay"><strong>OffDelay</strong></summary><blockquote>
+
+### Description
+
+```
+INPUT:  ___/""""""""\_____________
+                    |
+OUTPUT: ___/""""""""|"""""""""\___
+                    |         |
+                    |<-DELAY->|
+```
+
+
+### Methods
+
+<details><summary id="offdelay-constructor"><strong>OffDelay</strong> <em>constructor</em></summary><blockquote>
+
+### Description
+Creates an `OffDelay` object.
+
+### Syntax
+`OffDelay(delay)`
+
+### Parameter
+`delay`: the delay in milliseconds to wait before setting the output `false`. Allowed data type: `unsigned long`.
+
+### Example
+``` C++
+OffDelay myOffDelay(1000);
+```
+
+</blockquote></details>
+
+<details><summary id="offdelay-operator"><strong>OffDelay</strong> <em>operator</em></summary><blockquote>
+
+### Description
+Returns the value of the output.
+
+### Returns
+Data type: `bool`.
+
+### Example
+``` C++
+if (myOffDelay == false) {
+  // do something
+}
+```
+
+</blockquote></details>
+
+<details><summary id="offdelay-update"><strong>update()</strong></summary><blockquote>
+
+### Description
+Updates the input of an `OffDelay` object.
+
+### Syntax
+`OffDelay.update(input)`
+
+### Parameter
+`input`: Allowed data type `bool`.
+
+### Returns
+The value of the output. Data type: `bool`.  
+*Reading the output is optional.*
+
+### Example
+``` C++
+bool output = myOffDelay.update(input);
+```
+
+</blockquote></details>
+
+
+</blockquote></details>
+
+
+
+
+
+<details><summary id="debounce"><strong>Debounce</strong></summary><blockquote>
+
+### Description
+
+```
+INPUT:  ___/""""""""""""""""""\_____________
+           |                  |
+OUTPUT: ___|_________/""""""""|"""""""""\___
+           |         |        |         |
+           |<-DELAY->|        |<-DELAY->|
+```
+
+
+### Methods
+
+<details><summary id="debounce-constructor"><strong>Debounce</strong> <em>constructor</em></summary><blockquote>
+
+### Description
+Creates a `Debounce` object.
+
+### Syntax
+`Debounce(delay)`
+
+### Parameter
+`delay`: the delay in milliseconds to wait before setting the output `true` and the delay to wait before setting the output `false`. Allowed data type: `unsigned long`.
+
+### Example
+``` C++
+Debounce myDebounce(1000);
+```
+
+</blockquote></details>
+
+<details><summary id="debounce-operator"><strong>Debounce</strong> <em>operator</em></summary><blockquote>
+
+### Description
+Returns the value of the output.
+
+### Returns
+Data type: `bool`.
+
+### Example
+``` C++
+if (myDebounce) {
+  // do something
+}
+```
+
+</blockquote></details>
+
+<details><summary id="debounce-update"><strong>update()</strong></summary><blockquote>
+
+### Description
+Updates the input of an `Debounce` object.
+
+### Syntax
+`Debounce.update(input)`
+
+### Parameter
+`input`: Allowed data type `bool`.
+
+### Returns
+The value of the output. Data type: `bool`.  
+*Reading the output is optional.*
+
+### Example
+``` C++
+bool output = myDebounce.update(input);
+```
+
+</blockquote></details>
+
+
+</blockquote></details>
+
+
+
+
+
+<details><summary id="squarewave"><strong>SquareWave</strong></summary><blockquote>
+
+### Description
+Generates a square wave.
+
+```
+OUTPUT: ___/"""""""""""""\______________/"""
+           |             |              |
+           |<-ON PERIOD->|<-OFF PERIOD->|
+           |                            |
+           |<-------TOTAL PERIOD------->|
+```
+$`dutyCycle=\frac{onPeriod}{totalPeriod}`$
+
+
+### Methods
+
+<details><summary id="SquareWave-constructor"><strong>SquareWave</strong> <em>constructor</em></summary><blockquote>
+
+### Description
+Creates an `SquareWave` object.
+
+### Syntax
+- `SquareWave(totalPeriod, dutyCycle)`
+- `SquareWave(onPeriod, offPeriod)`
+
+### Parameters
+- `totalPerid`: the total period of the square wave in milliseconds. Allowed data type: `unsigned long`.
+- `dutyCycle`: the duty cycle of the squate wave. This should be less than `1` and greater than `0`. Allowed data type: `float`.
+- `onPerid`: the period square wave is `true`/`HIGH` in milliseconds. Allowed data type: `unsigned long`.
+- `offPerid`: the period square wave is `false`/`LOW` in milliseconds. Allowed data type: `unsigned long`.
+
+### Example
+``` C++
+SquareWave myFirstSquareWave(2000, 0.5);
+SquareWave mySecondSquareWave(1000, 1000);
+```
+
+</blockquote></details>
+
+<details><summary id="SquareWave-operator"><strong>SquareWave</strong> <em>operator</em></summary><blockquote>
+
+### Description
+Returns the value of the output.
+
+### Returns
+Data type: `bool`.
+
+### Example
+``` C++
+digitalWrite(LED_BUILTIN, mySquareWave);
+```
+
+</blockquote></details>
+
+
+</blockquote></details>
+
+
+
+
+
+<details><summary id="edge"><strong>Edge</strong></summary><blockquote>
+
+### Description
+
+```
+INPUT:   ___/""""""""""\____
+RISING:  ___/\______________
+FALLING: ______________/\___
+CHANGE:  ___/\_________/\___
+```
+
+
+### Methods
+
+<details><summary id="edge-constructor"><strong>Edge</strong> <em>constructor</em></summary><blockquote>
+
+### Description
+Creates a `Edge` object.
+
+### Example
+``` C++
+Edge myEdge;
+```
+
+</blockquote></details>
+
+<details><summary id="edge-update"><strong>update()</strong></summary><blockquote>
+
+### Description
+Updates the input of an `Edge` object.
+
+### Syntax
+`Edge.update(input)`
+
+### Parameter
+`input`: Allowed data type `bool`.
+
+### Returns
+Nothing
+
+### Example
+``` C++
+myEdge.update(input);
+```
+
+</blockquote></details>
+
+<details><summary id="edge-rising"><strong>rising()</strong></summary><blockquote>
+
+### Description
+Returns `true` when a rising edge is detected on the input.
+
+### Returns
+Data type: `bool`.
+
+### Example
+``` C++
+if (myEdge.rising()) {
+  // do something
+}
+```
+
+</blockquote></details>
+
+<details><summary id="edge-falling"><strong>falling()</strong></summary><blockquote>
+
+### Description
+Returns `true` when a falling edge is detected on the input.
+
+### Returns
+Data type: `bool`.
+
+### Example
+``` C++
+if (myEdge.falling()) {
+  // do something
+}
+```
+
+</blockquote></details>
+
+<details><summary id="edge-change"><strong>change()</strong></summary><blockquote>
+
+### Description
+Returns `true` when a change is detected on the input.
+
+### Returns
+Data type: `bool`.
+
+### Example
+``` C++
+if (myEdge.change()) {
+  // do something
+}
 ```
 
 </blockquote></details>

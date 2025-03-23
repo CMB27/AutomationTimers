@@ -9,26 +9,26 @@
   
   Created: 2025-03-08
   By: C. M. Bulliner
+  Last Modified: 2025-03-22
+  By: C. M. Bulliner
   
 */
 
 #include <AutomationTimers.h>
 
-Debounce debounce(1000);
-
-const int8_t buttonPin = 2;
+Debounce myDebounce(1000);
 
 void setup() {
-  pinMode(buttonPin, INPUT_PULLUP);
+  pinMode(2, INPUT_PULLUP);
   pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(9600);
 }
 
 void loop() {
-  AutomationTimers.updateMillis();
+  AutomationTimers.update();
 
-  bool input = !digitalRead(buttonPin);
-  bool output = debounce.update(input);
+  bool input = !digitalRead(2);
+  bool output = myDebounce.update(input);
 
   digitalWrite(LED_BUILTIN, output);
 
