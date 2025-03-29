@@ -479,6 +479,16 @@ Edge myEdge;
 
 </blockquote></details>
 
+<details><summary id="Edge-operator"><strong>Edge</strong> <em>operator</em></summary><blockquote>
+
+### Description
+Returns the value of the input.
+
+### Returns
+Data type: `bool`.
+
+</blockquote></details>
+
 <details><summary id="edge-update"><strong>update()</strong></summary><blockquote>
 
 ### Description

@@ -159,5 +159,8 @@ bool Edge::change() {
   return false;
 }
 
+Edge::operator bool() {
+  return _currentValue;
+}
 
 

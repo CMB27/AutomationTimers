@@ -76,6 +76,7 @@ class Edge {
     bool rising();
     bool falling();
     bool change();
+    operator bool();
   private:
     bool _currentValue;
     bool _previousValue;
