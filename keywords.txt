@@ -6,8 +6,11 @@ OffDelay	KEYWORD1
 Debounce	KEYWORD1		
 SquareWave	KEYWORD1		
 Edge	KEYWORD1		
+LinearRamp	KEYWORD1		
 update	KEYWORD2		
 reset	KEYWORD2		
+setDelay	KEYWORD2		
 rising	KEYWORD2		
 falling	KEYWORD2		
 change	KEYWORD2		
+setRate	KEYWORD2		

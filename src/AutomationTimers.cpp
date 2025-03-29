@@ -57,10 +57,6 @@ void Timer::reset() {
 
 // OnDelay
 
-OnDelay::OnDelay(unsigned long delay) {
-  _delay = delay;
-}
-
 bool OnDelay::update(bool input) {
   _output = false;
   if (!input) _timer.reset();
@@ -68,17 +64,9 @@ bool OnDelay::update(bool input) {
   return _output;
 }
 
-OnDelay::operator bool() {
-  return _output;
-}
-
 
 
 // OffDelay
-
-OffDelay::OffDelay(unsigned long delay) {
-  _delay = delay;
-}
 
 bool OffDelay::update(bool input) {
   _output = true;
@@ -87,17 +75,9 @@ bool OffDelay::update(bool input) {
   return _output;
 }
 
-OffDelay::operator bool() {
-  return _output;
-}
-
 
 
 // Debounce
-
-Debounce::Debounce(unsigned long delay) {
-  _delay = delay;
-}
 
 bool Debounce::update(bool input) {
   if (input == _output) _timer.reset();
@@ -105,10 +85,6 @@ bool Debounce::update(bool input) {
     _output = input;
     _timer.reset();
   }
-  return _output;
-}
-
-Debounce::operator bool() {
   return _output;
 }
 
@@ -139,6 +115,10 @@ SquareWave::operator bool() {
 
 // Edge
 
+Edge::operator bool() {
+  return _currentValue;
+}
+
 void Edge::update(bool input) {
   _previousValue = _currentValue;
   _currentValue = input;
@@ -159,8 +139,34 @@ bool Edge::change() {
   return false;
 }
 
-Edge::operator bool() {
-  return _currentValue;
+
+
+// LinearRamp
+
+LinearRamp::LinearRamp(float rate) {
+  setRate(rate);
 }
 
+LinearRamp::operator float() {
+  return _output;
+}
 
+float LinearRamp::update(float input) {
+  if (input != _target) {
+    _target = input;
+    _start = _output;
+    float deltaUnits = _target - _start;
+    _deltaMilliseconds = abs(deltaUnits) / _rate;
+    _timer.reset();
+  }
+  if (_timer < _deltaMilliseconds) {
+    if (_target > _start) _output = _rate * _timer + _start;
+    else _output = -_rate * _timer + _start;
+  }
+  else _output = _target;
+  return _output;
+}
+
+void LinearRamp::setRate(float rate) {
+  _rate = abs(rate);
+}

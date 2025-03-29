@@ -9,12 +9,13 @@ This library consists of a collection of classes:
 - `Debounce`: is essentially a combination of both `OnDelay` and `OffDelay`; it can be used to debounce an input.
 - `SquareWave`: generates a square wave with a set period and duty cycle.
 - `Edge`: detects the rising and falling edge of an input.
+- `LinearRamp`: a software linear ramp generator.
 
 
 
 ## Compatibility
 This library should work on any microcontroller board.
-It relies on [millis()](https://docs.arduino.cc/language-reference/en/functions/time/millis/) from the Arduino API/Language, but has no other dependencies.
+It relies on [millis()](https://docs.arduino.cc/language-reference/en/functions/time/millis/) and [abs()](https://docs.arduino.cc/language-reference/en/functions/math/abs/) from the Arduino API/Language, but has no other dependencies.
 
 
 
@@ -25,6 +26,7 @@ It relies on [millis()](https://docs.arduino.cc/language-reference/en/functions/
 - [DebounceExample](https://github.com/CMB27/AutomationTimers/blob/main/examples/DebounceExample/DebounceExample.ino)
 - [SquareWaveExample](https://github.com/CMB27/AutomationTimers/blob/main/examples/SquareWaveExample/SquareWaveExample.ino)
 - [EdgeExample](https://github.com/CMB27/AutomationTimers/blob/main/examples/EdgeExample/EdgeExample.ino)
+- [LinearRampExample](https://github.com/CMB27/AutomationTimers/blob/main/examples/LinearRampExample/LinearRampExample.ino)
 
 
 
@@ -68,7 +70,8 @@ void loop() {
 ### Description
 A `Timer` object acts like a read-only `unsigned long` that always counts up in milliseconds.
 It can be reset to 0 using the `reset()` method.
-The value of the `Timer` is prevented from overflowing; once the timer reaches the highest value a `unsigned long` can hold, it will stay there until reset.
+
+The value of the `Timer` is prevented from overflowing; once the timer reaches the highest value an `unsigned long` can hold, it will stay there until reset.
 
 ### Example
 ``` C++
@@ -146,7 +149,7 @@ if (myTimer >= 2000) {
 
 
 ### Note
-`Timer` is utilized in the `OnDelay`, `OffDelay`, and `Debounce` classes.
+`Timer` is utilized in the `OnDelay`, `OffDelay`, `Debounce`, and `LinearRamp` classes.
 
 </blockquote></details>
 
@@ -210,19 +213,29 @@ if (myOnDelay) {
 Updates the input of an `OnDelay` object.
 
 ### Syntax
-`OnDelay.update(input)`
+`myOnDelay.update(input)`
 
-### Parameter
-`input`: Allowed data type `bool`.
+### Parameters
+- `myOnDelay`: an `OnDelay` object.
+- `input`: Allowed data type `bool`.
 
 ### Returns
 The value of the output. Data type: `bool`.  
 *Reading the output is optional.*
 
-### Example
-``` C++
-bool output = myOnDelay.update(input);
-```
+</blockquote></details>
+
+<details><summary id="ondelay-setDelay"><strong>setDelay()</strong></summary><blockquote>
+
+### Description
+Changes the delay of an `OnDelay` object.
+
+### Syntax
+`myOnDelay.setDelay(delay)`
+
+### Parameters
+- `myOnDelay`: an `OnDelay` object.
+- `delay`: the delay in milliseconds to wait before setting the output `true`. Allowed data type: `unsigned long`.
 
 </blockquote></details>
 
@@ -289,19 +302,29 @@ if (myOffDelay == false) {
 Updates the input of an `OffDelay` object.
 
 ### Syntax
-`OffDelay.update(input)`
+`myOffDelay.update(input)`
 
 ### Parameter
-`input`: Allowed data type `bool`.
+- `myOffDelay`: an `OffDelay` object.
+- `input`: Allowed data type `bool`.
 
 ### Returns
 The value of the output. Data type: `bool`.  
 *Reading the output is optional.*
 
-### Example
-``` C++
-bool output = myOffDelay.update(input);
-```
+</blockquote></details>
+
+<details><summary id="offdelay-setDelay"><strong>setDelay()</strong></summary><blockquote>
+
+### Description
+Changes the delay of an `OffDelay` object.
+
+### Syntax
+`myOffDelay.setDelay(delay)`
+
+### Parameters
+- `myOffDelay`: an `OffDelay` object.
+- `delay`: the delay in milliseconds to wait before setting the output `false`. Allowed data type: `unsigned long`.
 
 </blockquote></details>
 
@@ -368,19 +391,29 @@ if (myDebounce) {
 Updates the input of an `Debounce` object.
 
 ### Syntax
-`Debounce.update(input)`
+`myDebounce.update(input)`
 
-### Parameter
-`input`: Allowed data type `bool`.
+### Parameters
+- `myDebounce`: a `Debounce` object.
+- `input`: Allowed data type `bool`.
 
 ### Returns
 The value of the output. Data type: `bool`.  
 *Reading the output is optional.*
 
-### Example
-``` C++
-bool output = myDebounce.update(input);
-```
+</blockquote></details>
+
+<details><summary id="debounce-setDelay"><strong>setDelay()</strong></summary><blockquote>
+
+### Description
+Changes the delay of an `Debounce` object.
+
+### Syntax
+`myDebounce.setDelay(delay)`
+
+### Parameters
+- `myDebounce`: a `Debounce` object.
+- `delay`: the delay in milliseconds to wait before setting the output `true` and the delay to wait before setting the output `false`. Allowed data type: `unsigned long`.
 
 </blockquote></details>
 
@@ -487,6 +520,11 @@ Returns the value of the input.
 ### Returns
 Data type: `bool`.
 
+### Example
+``` C++
+bool input = myEdge;
+```
+
 </blockquote></details>
 
 <details><summary id="edge-update"><strong>update()</strong></summary><blockquote>
@@ -495,18 +533,14 @@ Data type: `bool`.
 Updates the input of an `Edge` object.
 
 ### Syntax
-`Edge.update(input)`
+`myEdge.update(input)`
 
-### Parameter
-`input`: Allowed data type `bool`.
+### Parameters
+- `myEdge`: an `Edge` object.
+- `input`: Allowed data type `bool`.
 
 ### Returns
 Nothing
-
-### Example
-``` C++
-myEdge.update(input);
-```
 
 </blockquote></details>
 
@@ -515,15 +549,14 @@ myEdge.update(input);
 ### Description
 Returns `true` when a rising edge is detected on the input.
 
+### Syntax
+`myEdge.rising()`
+
+### Parameter
+`myEdge`: an `Edge` object.
+
 ### Returns
 Data type: `bool`.
-
-### Example
-``` C++
-if (myEdge.rising()) {
-  // do something
-}
-```
 
 </blockquote></details>
 
@@ -532,15 +565,14 @@ if (myEdge.rising()) {
 ### Description
 Returns `true` when a falling edge is detected on the input.
 
+### Syntax
+`myEdge.falling()`
+
+### Parameter
+`myEdge`: an `Edge` object.
+
 ### Returns
 Data type: `bool`.
-
-### Example
-``` C++
-if (myEdge.falling()) {
-  // do something
-}
-```
 
 </blockquote></details>
 
@@ -549,15 +581,106 @@ if (myEdge.falling()) {
 ### Description
 Returns `true` when a change is detected on the input.
 
+### Syntax
+`myEdge.change()`
+
+### Parameter
+`myEdge`: an `Edge` object.
+
 ### Returns
 Data type: `bool`.
 
+</blockquote></details>
+
+</blockquote></details>
+
+
+
+
+
+<details><summary id="linearramp"><strong>LinearRamp</strong></summary><blockquote>
+
+### Description
+
+```
+            |""""""""""""|
+INPUT:  ____|            |             _______
+                         |            |
+            |            |____________|
+            |
+            |            |            |
+            |            |            |
+            |                         |
+            | /"""""""""""\           |
+OUTPUT: _____/             \          |  _____
+                            \         | /
+                             \_________/
+```
+
+### Methods
+
+<details><summary id="linearramp-constructor"><strong>LinearRamp</strong> <em>constructor</em></summary><blockquote>
+
+### Description
+Creates a `LinearRamp` object.
+
+### Syntax
+`LinearRamp(rate)`
+
+### Parameter
+`rate`: the inital ramp rate in units per millisecond. Allowed data type: `float`.
+
 ### Example
 ``` C++
-if (myEdge.change()) {
-  // do something
-}
+LinearRamp myRamp(0.1);
 ```
+
+</blockquote></details>
+
+<details><summary id="linearramp-operator"><strong>LinearRamp</strong> <em>operator</em></summary><blockquote>
+
+### Description
+Returns the value of the output.
+
+### Returns
+Data type: `long`.
+
+### Example
+``` C++
+long output = myRamp;
+```
+
+</blockquote></details>
+
+<details><summary id="linearramp-update"><strong>update()</strong></summary><blockquote>
+
+### Description
+Updates the input of a `LinearRamp` object.
+
+### Syntax
+`myRamp.update(input)`
+
+### Parameters
+- `myRamp`: a `LinearRamp` object.
+- `input`: the target value to ramp to. Allowed data type `long`.
+
+### Returns
+Returns the value of the output. Data type: `long`.  
+*Reading the output is optional.*
+
+</blockquote></details>
+
+<details><summary id="linearramp-setrate"><strong>setRate()</strong></summary><blockquote>
+
+### Description
+sets the ramp rate in units per millisecond of a `LinearRamp` object.
+
+### Syntax
+`myRamp.setRate(rate)`
+
+### Parameters
+- `myRamp`: a `LinearRamp` object.
+- `rate`: the ramp rate. Allowed data type: `float`.
 
 </blockquote></details>
 

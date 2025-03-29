@@ -26,37 +26,33 @@ class Timer : private AutomationTimersClass {
     unsigned long _elapsedMillis;
 };
 
-class OnDelay {
+class DigitalTimerProcess {
   public:
-    OnDelay(unsigned long delay);
-    bool update(bool input);
-    operator bool();
-  private:
+    operator bool() {return _output;};
+    virtual bool update(bool input) = 0;
+    void setDelay(unsigned long delay) {_delay = delay;};
+  protected:
     Timer _timer;
     unsigned long _delay;
     bool _output;
 };
 
-class OffDelay {
+class OnDelay : public DigitalTimerProcess {
   public:
-    OffDelay(unsigned long delay);
+    OnDelay(unsigned long delay) {setDelay(delay);};
     bool update(bool input);
-    operator bool();
-  private:
-    Timer _timer;
-    unsigned long _delay;
-    bool _output;
 };
 
-class Debounce {
+class OffDelay : public DigitalTimerProcess {
   public:
-    Debounce(unsigned long delay);
+    OffDelay(unsigned long delay) {setDelay(delay);};
     bool update(bool input);
-    operator bool();
-  private:
-    Timer _timer;
-    unsigned long _delay;
-    bool _output;
+};
+
+class Debounce : public DigitalTimerProcess {
+  public:
+    Debounce(unsigned long delay) {setDelay(delay);};
+    bool update(bool input);
 };
 
 class SquareWave : private AutomationTimersClass {
@@ -72,14 +68,29 @@ class SquareWave : private AutomationTimersClass {
 
 class Edge {
   public:
+    operator bool();
     void update(bool input);
     bool rising();
     bool falling();
     bool change();
-    operator bool();
   private:
     bool _currentValue;
     bool _previousValue;
+};
+
+class LinearRamp {
+  public:
+    LinearRamp(float rate);
+    operator float();
+    float update(float input);
+    void setRate(float rate);
+  private:
+    Timer _timer;
+    float _deltaMilliseconds;
+    float _target = 0;
+    float _start = 0;
+    float _output = 0;
+    float _rate;
 };
 
 extern AutomationTimersClass AutomationTimers;
