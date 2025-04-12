@@ -170,3 +170,8 @@ float LinearRamp::update(float input) {
 void LinearRamp::setRate(float rate) {
   _rate = abs(rate);
 }
+
+
+
+// Instatntiate AutomationTimers
+AutomationTimersClass AutomationTimers;
