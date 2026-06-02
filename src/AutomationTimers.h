@@ -10,6 +10,7 @@
 class AutomationTimersClass {
   public:
     void update();
+    unsigned long getCurrentMillis();
   protected:
     static unsigned long _currentMillis;
 };
@@ -17,10 +18,8 @@ class AutomationTimersClass {
 class Timer : private AutomationTimersClass {
   public:
     operator unsigned long();
-    //unsigned long & operator = (unsigned long elapsedMillis);
-    //unsigned long & operator += (unsigned long addedMillis);
-    //unsigned long & operator -= (unsigned long subtractedMillis);
     void reset();
+    void set(unsigned long setMillis);
   private:
     unsigned long _startMillis = 0;
     unsigned long _elapsedMillis;
@@ -30,28 +29,29 @@ class DigitalTimerProcess {
   public:
     operator bool() {return _output;};
     virtual bool update(bool input) = 0;
-    void setDelay(unsigned long delay) {_delay = delay;};
+    void setDelay(unsigned long delay);
   protected:
     Timer _timer;
     unsigned long _delay;
     bool _output;
+    bool _firstRun = true;
 };
 
 class OnDelay : public DigitalTimerProcess {
   public:
-    OnDelay(unsigned long delay) {setDelay(delay);};
+    OnDelay(unsigned long delay);
     bool update(bool input);
 };
 
 class OffDelay : public DigitalTimerProcess {
   public:
-    OffDelay(unsigned long delay) {setDelay(delay);};
+    OffDelay(unsigned long delay);
     bool update(bool input);
 };
 
 class Debounce : public DigitalTimerProcess {
   public:
-    Debounce(unsigned long delay) {setDelay(delay);};
+    Debounce(unsigned long delay);
     bool update(bool input);
 };
 
@@ -90,7 +90,7 @@ class LinearRamp {
     float _target = 0;
     float _start = 0;
     float _output = 0;
-    float _rate;
+    float _rate = 1.0;
 };
 
 extern AutomationTimersClass AutomationTimers;

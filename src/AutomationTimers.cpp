@@ -9,6 +9,10 @@ void AutomationTimersClass::update() {
   _currentMillis = millis();
 }
 
+unsigned long AutomationTimersClass::getCurrentMillis() {
+  return _currentMillis;
+}
+
 
 
 // Timer
@@ -22,42 +26,37 @@ Timer::operator unsigned long() {
   return _elapsedMillis;
 }
 
-/*
-unsigned long& Timer::operator = (unsigned long elapsedMillis) {
-  _elapsedMillis = elapsedMillis;
-  _startMillis = _currentMillis - _elapsedMillis;
-  return _elapsedMillis;
-}
-*/
-
-/*
-unsigned long& Timer::operator += (unsigned long addedMillis) {
-  if (addedMillis < ULONG_MAX - _elapsedMillis) _elapsedMillis += addedMillis;
-  else _elapsedMillis = ULONG_MAX;
-  _startMillis = _currentMillis - _elapsedMillis;
-  return _elapsedMillis;
-}
-*/
-
-/*
-unsigned long& Timer::operator -= (unsigned long subtractedMillis) {
-  if (subtractedMillis < _elapsedMillis) _elapsedMillis -= subtractedMillis;
-  else _elapsedMillis = 0;
-  _startMillis = _currentMillis - _elapsedMillis;
-  return _elapsedMillis;
-}
-*/
-
 void Timer::reset() {
   _elapsedMillis = 0;
   _startMillis = _currentMillis;
+}
+
+void Timer::set(unsigned long setMillis) {
+  _elapsedMillis = setMillis;
+  _startMillis = _currentMillis - _elapsedMillis;
+}
+
+
+
+// DigitalTimerProcess
+
+void DigitalTimerProcess::setDelay(unsigned long delay) {
+  _delay = delay;
 }
 
 
 
 // OnDelay
 
+OnDelay::OnDelay(unsigned long delay) {
+  setDelay(delay);
+}
+
 bool OnDelay::update(bool input) {
+  if (_firstRun) {
+    _timer.set(_delay);
+    _firstRun = false;
+  }
   _output = false;
   if (!input) _timer.reset();
   else if (_timer >= _delay) _output = true;
@@ -68,7 +67,15 @@ bool OnDelay::update(bool input) {
 
 // OffDelay
 
+OffDelay::OffDelay(unsigned long delay) {
+  setDelay(delay);
+}
+
 bool OffDelay::update(bool input) {
+  if (_firstRun) {
+    _timer.set(_delay);
+    _firstRun = false;
+  }
   _output = true;
   if (input) _timer.reset();
   else if (_timer >= _delay) _output = false;
@@ -79,7 +86,16 @@ bool OffDelay::update(bool input) {
 
 // Debounce
 
+Debounce::Debounce(unsigned long delay) {
+  setDelay(delay);
+}
+
 bool Debounce::update(bool input) {
+  if (_firstRun) {
+    _timer.set(_delay);
+    _output = input;
+    _firstRun = false;
+  }
   if (input == _output) _timer.reset();
   else if (_timer >= _delay) {
     _output = input;
@@ -156,7 +172,8 @@ float LinearRamp::update(float input) {
     _target = input;
     _start = _output;
     float deltaUnits = _target - _start;
-    _deltaMilliseconds = abs(deltaUnits) / _rate;
+    if (deltaUnits < 0.0) deltaUnits = deltaUnits * -1.0;
+    _deltaMilliseconds = deltaUnits / _rate;
     _timer.reset();
   }
   if (_timer < _deltaMilliseconds) {
@@ -168,10 +185,11 @@ float LinearRamp::update(float input) {
 }
 
 void LinearRamp::setRate(float rate) {
-  _rate = abs(rate);
+  if (rate < 0.0) rate = rate * -1.0;
+  if (rate != 0.0) _rate = rate;
 }
 
 
 
-// Instatntiate AutomationTimers
+// Instantiate AutomationTimers
 AutomationTimersClass AutomationTimers;

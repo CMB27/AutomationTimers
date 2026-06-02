@@ -59,6 +59,18 @@ void loop() {
 
 
 
+<details><summary id="automationtimers-getcurrentmillis"><strong>getCurrentMillis()</strong></summary><blockquote>
+
+### Description
+Gets the time in `millis()` of the last `update()`.
+
+### Syntax
+`AutomationTimers.getCurrentMillis()`
+
+</blockquote></details>
+
+
+
 
 
 ## Classes
@@ -68,10 +80,10 @@ void loop() {
 <details><summary id="timer"><strong>Timer</strong></summary><blockquote>
 
 ### Description
-A `Timer` object acts like a read-only `unsigned long` that always counts up in milliseconds.
-It can be reset to 0 using the `reset()` method.
+A `Timer` object acts like an `unsigned long` that always counts up in milliseconds.
+It can be reset to 0 using the `reset()` method, or set to a value of your choosing using the `set()` method.
 
-The value of the `Timer` is prevented from overflowing; once the timer reaches the highest value an `unsigned long` can hold, it will stay there until reset.
+The value of a `Timer` is prevented from overflowing; once a timer reaches the highest value an `unsigned long` can hold, it will stay there until it is reset, or until it is set to a lower value.
 
 ### Example
 ``` C++
@@ -142,6 +154,21 @@ Resets the timer to 0.
 if (myTimer >= 2000) {
   myTimer.reset();
   // do something else
+}
+```
+
+</blockquote></details>
+
+<details><summary id="timer-set"><strong>set()</strong></summary><blockquote>
+
+### Description
+Sets the timer to a value of your choosing.
+
+### Example
+``` C++
+if (myTimer >= 2000) {
+  myTimer.set(myTimer - 2000);
+  // do something at a more accurate cadence
 }
 ```
 
@@ -686,3 +713,4 @@ sets the ramp rate in units per millisecond of a `LinearRamp` object.
 
 
 </blockquote></details>
+

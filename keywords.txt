@@ -8,7 +8,9 @@ SquareWave	KEYWORD1
 Edge	KEYWORD1		
 LinearRamp	KEYWORD1		
 update	KEYWORD2		
+getCurrentMillis	KEYWORD2		
 reset	KEYWORD2		
+set	KEYWORD2		
 setDelay	KEYWORD2		
 rising	KEYWORD2		
 falling	KEYWORD2		
