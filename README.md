@@ -164,6 +164,12 @@ if (myTimer >= 2000) {
 ### Description
 Sets the timer to a value of your choosing.
 
+### Syntax
+`set(setMillis)`
+
+### Parameter
+`setMillis`: the value to set the timer to. Allowed data type: `unsigned long`.
+
 ### Example
 ``` C++
 if (myTimer >= 2000) {
