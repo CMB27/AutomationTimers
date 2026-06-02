@@ -15,7 +15,7 @@ This library consists of a collection of classes:
 
 ## Compatibility
 This library should work on any microcontroller board.
-It relies on [millis()](https://docs.arduino.cc/language-reference/en/functions/time/millis/) and [abs()](https://docs.arduino.cc/language-reference/en/functions/math/abs/) from the Arduino API/Language, but has no other dependencies.
+It relies on [millis()](https://docs.arduino.cc/language-reference/en/functions/time/millis/) from the Arduino API/Language, but has no other dependencies.
 
 
 
