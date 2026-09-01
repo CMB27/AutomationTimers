@@ -9,17 +9,19 @@
   
   Created: 2025-03-08
   By: C. M. Bulliner
-  Last Modified: 2025-03-29
+  Last Modified: 2026-08-31
   By: C. M. Bulliner
   
 */
 
 #include <AutomationTimers.h>
 
+#define BUTTON_PIN 2
+
 OffDelay myOffDelay(500);
 
 void setup() {
-  pinMode(2, INPUT_PULLUP);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
   pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(9600);
 }
@@ -27,7 +29,7 @@ void setup() {
 void loop() {
   AutomationTimers.update();
 
-  bool input = !digitalRead(2);
+  bool input = !digitalRead(BUTTON_PIN);
   myOffDelay.update(input);
 
   digitalWrite(LED_BUILTIN, myOffDelay);

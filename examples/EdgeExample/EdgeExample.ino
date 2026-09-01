@@ -9,25 +9,25 @@
   
   Created: 2025-03-08
   By: C. M. Bulliner
-  Last Modified: 2025-03-29
+  Last Modified: 2026-08-31
   By: C. M. Bulliner
   
 */
 
 #include <AutomationTimers.h>
 
+#define BUTTON_PIN 2
+
 Edge myEdge;
 
-const int8_t buttonPin = 2;
-
 void setup() {
-  pinMode(buttonPin, INPUT_PULLUP);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
   pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(9600);
 }
 
 void loop() {
-  myEdge.update(!digitalRead(buttonPin));
+  myEdge.update(!digitalRead(BUTTON_PIN));
   digitalWrite(LED_BUILTIN, myEdge.change());
 
   Serial.print("input:");

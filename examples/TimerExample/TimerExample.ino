@@ -9,17 +9,19 @@
   
   Created: 2025-03-08
   By: C. M. Bulliner
-  Last Modified: 2025-03-22
+  Last Modified: 2026-08-31
   By: C. M. Bulliner
   
 */
 
 #include <AutomationTimers.h>
 
+#define BUTTON_PIN 2
+
 Timer myTimer;
 
 void setup() {
-  pinMode(2, INPUT_PULLUP);
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
   Serial.begin(9600);
 }
 
@@ -30,8 +32,8 @@ void loop() {
   // It only needs to be run once, even when using multiple Timer objects.
   AutomationTimers.update();
   
-  // If pin 2 is HIGH, the timer will be reset to 0, so the timer only counts up when pin 2 is LOW.
-  if (digitalRead(2)) myTimer.reset();
+  // If the button pin is HIGH, the timer will be reset to 0, so the timer only counts up when it is LOW.
+  if (digitalRead(BUTTON_PIN)) myTimer.reset();
 
   // This will print the timer value in milliseconds.
   Serial.println(myTimer);

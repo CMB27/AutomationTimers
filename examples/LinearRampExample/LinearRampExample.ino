@@ -1,5 +1,5 @@
 /*
-  OnDelayExample
+  LinearRampExample
 
   This example demonstrates how to setup and use the LinearRamp class of the AutomationTimers library (https://github.com/CMB27/AutomationTimers).
   
@@ -7,6 +7,8 @@
   The output will ramp to the entered setpoint/input value at the set rate: 0.1 units per millisecond.
   
   Created: 2025-03-29
+  By: C. M. Bulliner
+  Last Modified: 2026-08-31
   By: C. M. Bulliner
   
 */

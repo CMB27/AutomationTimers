@@ -1,44 +1,73 @@
 #include "AutomationTimers.h"
 
 
+// TimeGetter
+
+void TimeGetter::update(unsigned long currentTime) {
+  _currentTime = currentTime;
+}
+
+unsigned long TimeGetter::getCurrentTime() {
+  return _currentTime;
+}
+
+// Create a default TimeGetter
+static TimeGetter defaultTimeGetter;
+
+
+
 // AutomationTimersClass
 
-unsigned long AutomationTimersClass::_currentMillis;
-
 void AutomationTimersClass::update() {
-  _currentMillis = millis();
+  defaultTimeGetter.update(millis());
 }
 
 unsigned long AutomationTimersClass::getCurrentMillis() {
-  return _currentMillis;
+  return defaultTimeGetter.getCurrentTime();
 }
 
 
 
 // Timer
 
+Timer::Timer(TimeGetter& timeGetter) : _timeGetter(timeGetter) {
+
+}
+
+Timer::Timer() : _timeGetter(defaultTimeGetter) {
+
+}
+
 Timer::operator unsigned long() {
-  if (_elapsedMillis != ULONG_MAX) {
-    unsigned long tempElapsedMillis = _currentMillis - _startMillis;
-    if (tempElapsedMillis < _elapsedMillis) _elapsedMillis = ULONG_MAX;
-    else _elapsedMillis = tempElapsedMillis;
+  if (_elapsedTime != ULONG_MAX) {
+    unsigned long tempElapsedTime = _timeGetter.getCurrentTime() - _startTime;
+    if (tempElapsedTime < _elapsedTime) _elapsedTime = ULONG_MAX;
+    else _elapsedTime = tempElapsedTime;
   }
-  return _elapsedMillis;
+  return _elapsedTime;
 }
 
 void Timer::reset() {
-  _elapsedMillis = 0;
-  _startMillis = _currentMillis;
+  _elapsedTime = 0;
+  _startTime = _timeGetter.getCurrentTime();
 }
 
-void Timer::set(unsigned long setMillis) {
-  _elapsedMillis = setMillis;
-  _startMillis = _currentMillis - _elapsedMillis;
+void Timer::set(unsigned long setTime) {
+  _elapsedTime = setTime;
+  _startTime = _timeGetter.getCurrentTime() - _elapsedTime;
 }
 
 
 
 // DigitalTimerProcess
+
+DigitalTimerProcess::DigitalTimerProcess(TimeGetter& timeGetter, unsigned long delay) : _timer(timeGetter) {
+  setDelay(delay);
+}
+
+DigitalTimerProcess::DigitalTimerProcess(unsigned long delay) : _timer(defaultTimeGetter) {
+  setDelay(delay);
+}
 
 void DigitalTimerProcess::setDelay(unsigned long delay) {
   _delay = delay;
@@ -47,10 +76,6 @@ void DigitalTimerProcess::setDelay(unsigned long delay) {
 
 
 // OnDelay
-
-OnDelay::OnDelay(unsigned long delay) {
-  setDelay(delay);
-}
 
 bool OnDelay::update(bool input) {
   if (_firstRun) {
@@ -67,10 +92,6 @@ bool OnDelay::update(bool input) {
 
 // OffDelay
 
-OffDelay::OffDelay(unsigned long delay) {
-  setDelay(delay);
-}
-
 bool OffDelay::update(bool input) {
   if (_firstRun) {
     _timer.set(_delay);
@@ -85,10 +106,6 @@ bool OffDelay::update(bool input) {
 
 
 // Debounce
-
-Debounce::Debounce(unsigned long delay) {
-  setDelay(delay);
-}
 
 bool Debounce::update(bool input) {
   if (_firstRun) {
@@ -108,22 +125,58 @@ bool Debounce::update(bool input) {
 
 // SquareWave
 
-SquareWave::SquareWave(unsigned long totalPeriod, float dutyCycle) {
+SquareWave::SquareWave(TimeGetter& timeGetter, unsigned long totalPeriod, float dutyCycle) : _timeGetter(timeGetter), _timer(timeGetter) {
+  _setup(totalPeriod, dutyCycle);
+}
+
+SquareWave::SquareWave(TimeGetter& timeGetter, unsigned long onPeriod, unsigned long offPeriod) : _timeGetter(timeGetter), _timer(timeGetter) {
+  _setup(onPeriod, offPeriod);
+}
+
+SquareWave::SquareWave(unsigned long totalPeriod, float dutyCycle) : _timeGetter(defaultTimeGetter), _timer(defaultTimeGetter) {
+  _setup(totalPeriod, dutyCycle);
+}
+
+SquareWave::SquareWave(unsigned long onPeriod, unsigned long offPeriod) : _timeGetter(defaultTimeGetter), _timer(defaultTimeGetter) {
+  _setup(onPeriod, offPeriod);
+}
+
+SquareWave::operator bool() {
+  if (_timer >= _totalPeriod) _timer.set(_timeGetter.getCurrentTime() % _totalPeriod);
+  if (_timer < _onPeriod) return true;
+  return false;
+}
+
+void SquareWave::_setup(unsigned long totalPeriod, float dutyCycle) {
   _totalPeriod = totalPeriod;
   if (dutyCycle > 1.0) dutyCycle = 1.0;
   if (dutyCycle < 0.0) dutyCycle = 0.0;
   _onPeriod = (unsigned long)((float)_totalPeriod * dutyCycle);
 }
 
-SquareWave::SquareWave(unsigned long onPeriod, unsigned long offPeriod) {
+void SquareWave::_setup(unsigned long onPeriod, unsigned long offPeriod) {
   _onPeriod = onPeriod;
   _totalPeriod = _onPeriod + offPeriod;
 }
 
-SquareWave::operator bool() {
-  unsigned long elapsedMillis = _currentMillis - _startMillis;
-  if (elapsedMillis > _totalPeriod) _startMillis = _currentMillis - (_currentMillis % _totalPeriod);
-  if (elapsedMillis < _onPeriod) return true;
+
+
+// SampleTimer
+
+SampleTimer::SampleTimer(TimeGetter& timeGetter, unsigned long samplePeriod) : _timeGetter(timeGetter), _timer(timeGetter) {
+  _samplePeriod = samplePeriod;
+}
+
+SampleTimer::SampleTimer(unsigned long samplePeriod) : _timeGetter(defaultTimeGetter), _timer(defaultTimeGetter) {
+  _samplePeriod = samplePeriod;
+}
+
+SampleTimer::operator bool() {
+  if (_timer >= _samplePeriod) {
+    _timer.set(_timeGetter.getCurrentTime() % _samplePeriod);
+    _sampleTime = _timeGetter.getCurrentTime();
+  }
+  if (_timeGetter.getCurrentTime() == _sampleTime) return true;
   return false;
 }
 
@@ -159,7 +212,11 @@ bool Edge::change() {
 
 // LinearRamp
 
-LinearRamp::LinearRamp(float rate) {
+LinearRamp::LinearRamp(TimeGetter& timeGetter, float rate) : _timer(timeGetter) {
+  setRate(rate);
+}
+
+LinearRamp::LinearRamp(float rate) : _timer(defaultTimeGetter) {
   setRate(rate);
 }
 
@@ -173,10 +230,10 @@ float LinearRamp::update(float input) {
     _start = _output;
     float deltaUnits = _target - _start;
     if (deltaUnits < 0.0) deltaUnits = deltaUnits * -1.0;
-    _deltaMilliseconds = deltaUnits / _rate;
+    _deltaTime = deltaUnits / _rate;
     _timer.reset();
   }
-  if (_timer < _deltaMilliseconds) {
+  if (_timer < _deltaTime) {
     if (_target > _start) _output = _rate * _timer + _start;
     else _output = -_rate * _timer + _start;
   }
@@ -188,6 +245,12 @@ void LinearRamp::setRate(float rate) {
   if (rate < 0.0) rate = rate * -1.0;
   if (rate != 0.0) _rate = rate;
 }
+
+float LinearRamp::update(float input, float rate) {
+  setRate(rate);
+  return update(input);
+}
+
 
 
 

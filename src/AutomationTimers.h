@@ -1,32 +1,43 @@
 #ifndef AutomationTimers_h
 #define AutomationTimers_h
 
-#include "Arduino.h"
+#include <Arduino.h>
 
 #ifndef ULONG_MAX
 #define ULONG_MAX ((unsigned long)0 - 1)
 #endif
 
+class TimeGetter {
+  public:
+    void update(unsigned long currentTime);
+    unsigned long getCurrentTime();
+  protected:
+    unsigned long _currentTime;
+};
+
 class AutomationTimersClass {
   public:
     void update();
     unsigned long getCurrentMillis();
-  protected:
-    static unsigned long _currentMillis;
 };
 
-class Timer : private AutomationTimersClass {
+class Timer {
   public:
+    Timer(TimeGetter& timeGetter);
+    Timer();
     operator unsigned long();
     void reset();
-    void set(unsigned long setMillis);
+    void set(unsigned long setTime);
   private:
-    unsigned long _startMillis = 0;
-    unsigned long _elapsedMillis;
+    TimeGetter& _timeGetter;
+    unsigned long _startTime = 0;
+    unsigned long _elapsedTime;
 };
 
 class DigitalTimerProcess {
   public:
+    DigitalTimerProcess(TimeGetter& timeGetter, unsigned long delay);
+    DigitalTimerProcess(unsigned long delay);
     operator bool() {return _output;};
     virtual bool update(bool input) = 0;
     void setDelay(unsigned long delay);
@@ -39,31 +50,48 @@ class DigitalTimerProcess {
 
 class OnDelay : public DigitalTimerProcess {
   public:
-    OnDelay(unsigned long delay);
+    using DigitalTimerProcess::DigitalTimerProcess;
     bool update(bool input);
 };
 
 class OffDelay : public DigitalTimerProcess {
   public:
-    OffDelay(unsigned long delay);
+    using DigitalTimerProcess::DigitalTimerProcess;
     bool update(bool input);
 };
 
 class Debounce : public DigitalTimerProcess {
   public:
-    Debounce(unsigned long delay);
+    using DigitalTimerProcess::DigitalTimerProcess;
     bool update(bool input);
 };
 
-class SquareWave : private AutomationTimersClass {
+class SquareWave {
   public:
+    SquareWave(TimeGetter& timeGetter, unsigned long totalPeriod, float dutyCycle = 0.5);
+    SquareWave(TimeGetter& timeGetter, unsigned long onPeriod, unsigned long offPeriod);
     SquareWave(unsigned long totalPeriod, float dutyCycle = 0.5);
     SquareWave(unsigned long onPeriod, unsigned long offPeriod);
     operator bool();
   private:
+    TimeGetter& _timeGetter;
+    Timer _timer;
     unsigned long _totalPeriod;
     unsigned long _onPeriod;
-    unsigned long _startMillis;
+    void _setup(unsigned long totalPeriod, float dutyCycle);
+    void _setup(unsigned long onPeriod, unsigned long offPeriod);
+};
+
+class SampleTimer {
+  public:
+    SampleTimer(TimeGetter& timeGetter, unsigned long samplePeriod);
+    SampleTimer(unsigned long samplePeriod);
+    operator bool();
+  private:
+    TimeGetter& _timeGetter;
+    Timer _timer;
+    unsigned long _samplePeriod;
+    unsigned long _sampleTime;
 };
 
 class Edge {
@@ -80,13 +108,15 @@ class Edge {
 
 class LinearRamp {
   public:
+    LinearRamp(TimeGetter& timeGetter, float rate);
     LinearRamp(float rate);
     operator float();
     float update(float input);
     void setRate(float rate);
+    float update(float input, float rate);
   private:
     Timer _timer;
-    float _deltaMilliseconds;
+    float _deltaTime;
     float _target = 0;
     float _start = 0;
     float _output = 0;
