@@ -9,7 +9,7 @@ This library consists of a collection of classes:
 - `OffDelay`: turns an output value off, a fixed amount of time after an input value has been turned off.
 - `Debounce`: is essentially a combination of both `OnDelay` and `OffDelay`; it can be used to debounce digital inputs.
 - `SquareWave`: generates a square wave with a fixed period and duty cycle.
-- `SampleTimer`: turns an output value on once per scan/loop at a fixed interval.
+- `SampleTimer`: turns an output value on once per scan/loop at a fixed interval; it can be used for sampling values.
 - `Edge`: detects the rising and falling edge of an input value.
 - `LinearRamp`: moves an output value toward an input value at a settable rate.
 
@@ -650,6 +650,63 @@ digitalWrite(LED_BUILTIN, mySquareWave);
 
 
 
+<details><summary id="sampletimer"><strong>SampleTimer</strong></summary><blockquote>
+
+### Description
+
+```
+OUTPUT: ___/\__________________/\___
+           |                   |
+           |<--SAMPLE PERIOD-->|
+```
+
+
+### Methods
+
+<details><summary id="sampletimer-constructor"><strong>SampleTimer</strong> <em>constructor</em></summary><blockquote>
+
+### Description
+Creates an `SampleTimer` object.
+
+### Syntax
+- `SampleTimer(samplePeriod)`
+- `SampleTimer(timeGetter, samplePeriod)`
+
+### Parameters
+- `samplePerid`: how often to turn the output on. Allowed data type: `unsigned long`.
+- `timeGetter`: a `TimeGetter` object.
+
+### Example
+``` C++
+SampleTimer mySampleTimer(5000);
+```
+
+</blockquote></details>
+
+<details><summary id="sampletimer-operator"><strong>SampleTimer</strong> <em>operator</em></summary><blockquote>
+
+### Description
+Returns the value of the output.
+
+### Returns
+Data type: `bool`.
+
+### Example
+``` C++
+if (mySampleTimer) {
+  Serial.println(analogRead(A0));
+}
+```
+
+</blockquote></details>
+
+
+</blockquote></details>
+
+
+
+
+
 <details><summary id="edge"><strong>Edge</strong></summary><blockquote>
 
 ### Description
@@ -810,7 +867,7 @@ LinearRamp myRamp(0.1);
 Returns the value of the output.
 
 ### Returns
-Data type: `long`.
+Data type: `float`.
 
 ### Example
 ``` C++
@@ -829,10 +886,10 @@ Updates the input of a `LinearRamp` object.
 
 ### Parameters
 - `myRamp`: a `LinearRamp` object.
-- `input`: the target value to ramp to. Allowed data type `long`.
+- `input`: the target value to ramp to. Allowed data type `float`.
 
 ### Returns
-Returns the value of the output. Data type: `long`.  
+Returns the value of the output. Data type: `float`.  
 *Reading the output is optional.*
 
 </blockquote></details>
