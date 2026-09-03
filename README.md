@@ -3,13 +3,15 @@ This is an Arduino library for managing event timing.
 It provides *relatively* intuitive tools for creating non-blocking timing events in your code.
 
 This library consists of a collection of classes:
-- `Timer`: counts up in milliseconds, can be reset
-- `OnDelay`: turns an output on a set number of milliseconds after an input is turned on.
-- `OffDelay`: turns an output off a set number of milliseconds after an input is turned off.
-- `Debounce`: is essentially a combination of both `OnDelay` and `OffDelay`; it can be used to debounce an input.
-- `SquareWave`: generates a square wave with a set period and duty cycle.
-- `Edge`: detects the rising and falling edge of an input.
-- `LinearRamp`: a software linear ramp generator.
+- `TimeGetter`: gets the current time.
+- `Timer`: counts up as time passes, can be set to a particular value or reset to zero.
+- `OnDelay`: turns an output value on, a fixed amount of time after an input value has been turned on.
+- `OffDelay`: turns an output value off, a fixed amount of time after an input value has been turned off.
+- `Debounce`: is essentially a combination of both `OnDelay` and `OffDelay`; it can be used to debounce digital inputs.
+- `SquareWave`: generates a square wave with a fixed period and duty cycle.
+- `SampleTimer`: turns an output value on once per scan/loop at a fixed interval.
+- `Edge`: detects the rising and falling edge of an input value.
+- `LinearRamp`: moves an output value toward an input value at a settable rate.
 
 
 
@@ -25,6 +27,7 @@ It relies on [millis()](https://docs.arduino.cc/language-reference/en/functions/
 - [OffDelayExample](https://github.com/CMB27/AutomationTimers/blob/main/examples/OffDelayExample/OffDelayExample.ino)
 - [DebounceExample](https://github.com/CMB27/AutomationTimers/blob/main/examples/DebounceExample/DebounceExample.ino)
 - [SquareWaveExample](https://github.com/CMB27/AutomationTimers/blob/main/examples/SquareWaveExample/SquareWaveExample.ino)
+- [SampleTimerExample](https://github.com/CMB27/AutomationTimers/blob/main/examples/SampleTimerExample/SampleTimerExample.ino)
 - [EdgeExample](https://github.com/CMB27/AutomationTimers/blob/main/examples/EdgeExample/EdgeExample.ino)
 - [LinearRampExample](https://github.com/CMB27/AutomationTimers/blob/main/examples/LinearRampExample/LinearRampExample.ino)
 
@@ -35,8 +38,7 @@ It relies on [millis()](https://docs.arduino.cc/language-reference/en/functions/
 <details><summary id="automationtimers-update"><strong>update()</strong></summary><blockquote>
 
 ### Description
-Updates the time for all classes in this library except `Edge`.
-`Edge` is event based, not time based.
+Updates the time for all classes in this library except `Edge` or instances that use a `TimeGetter`.
 This is usually run once at the beginning of `loop()`.
 
 ### Syntax
@@ -74,6 +76,121 @@ Gets the time in `millis()` of the last `update()`.
 
 
 ## Classes
+
+
+
+<details><summary id="timegetter"><strong>TimeGetter</strong></summary><blockquote>
+
+### Description
+`AutomationTimers.update()` and `AutomationTimers.getCurrentMillis()` utilize a default instance of `TimeGetter`.
+If you only have one loop and are always working with milliseconds, you do not need to do anything with `TimeGetter`.
+However, if you are using an RTOS and have multiple loops in different tasks/threads, and you want to use this library in more than one of them, you will need to utilize `TimeGetter`.
+`TimeGetter` also allows you to work with time units other than milliseconds.
+
+### Example
+``` C++
+// This example was written with an ESP32-C3 running FreeRTOS in mind
+
+#include <AutomationTimers.h>
+
+void taskAFn(void *parameter) {
+  static TimeGetter timeGetter;
+  static SquareWave squareWave(timeGetter, 1, 2); // using timeGetter, on for one second, off for two
+  pinMode(LED_BUILTIN, OUTPUT);
+  while (true) {
+    timeGetter.update(millis() / 1000); // use seconds instead of milliseconds
+    digitalWrite(LED_BUILTIN, squareWave);
+    delay(10); // allow other tasks to run
+  }
+}
+
+void taskBFn(void *parameter) {
+  static TimeGetter timeGetter; // we can use the same name as before because this is in a different scope
+  static OnDelay onDelay(timeGetter, 500); // using timeGetter (local scope), wait 500ms afer input to turn output on
+  pinMode(2, INPUT_PULLUP); // a button should be placed between pin 2 and GND
+  pinMode(3, OUTPUT); // a LED with current limiting resistor should be placed between pin 3 and GND
+  while (true) {
+    timeGetter.update(millis()); // use milliseconds here
+    onDelay.update(!digitalRead(2));
+    digitalWrite(3, onDelay);
+    delay(10); // allow other tasks to run
+  }
+}
+
+
+void setup() {
+  xTaskCreate(taskAFn, "taskA", 1024, NULL, 1, NULL); // start task A
+  xTaskCreate(taskBFn, "taskB", 1024, NULL, 2, NULL); // start task B
+  vTaskDelete(NULL); // delete the default (this) task
+}
+
+void loop() {
+  // this should never run
+}
+```
+
+### Methods
+
+<details><summary id="timegetter-constructor"><strong>TimeGetter</strong> <em>constructor</em></summary><blockquote>
+
+### Description
+Creates a `TimeGetter` object.
+
+### Example
+``` C++
+TimeGetter myTimeGetter;
+```
+
+</blockquote></details>
+
+<details><summary id="timegetter-constructor"><strong>TimeGetter</strong> <em>operator</em></summary><blockquote>
+
+### Description
+Returns the time according to the last `update()` of the `TimeGetter`.
+
+### Returns
+Data type: `unsigned long`.
+
+</blockquote></details>
+
+<details><summary id="timegetter-update"><strong>update()</strong></summary><blockquote>
+
+### Description
+Updates the time for all instances of classes in this library that use the specified `TimeGetter`.
+This is usually run once at the beginning of a loop.
+
+### Syntax
+`timeGetter.update(currentTime)`
+
+### Parameters
+- `timeGetter`: a `TimeGetter` object.
+- `currentTime`: a time value, usually `millis()`. Allowed data type `unsigned long`.
+
+### Example
+``` C++
+#include <AutomationTimers.h>
+
+TimeGetter myTimeGetter;
+
+void setup() {
+  // run setup stuff here
+}
+
+void loop() {
+  myTimeGetter.update(millis());
+  // run other loop stuff here
+}
+```
+</blockquote></details>
+
+### Note
+`TimeGetter` can be utilized by the `Timer`, `OnDelay`, `OffDelay`, `Debounce`, and `LinearRamp` classes.
+
+</blockquote></details>
+
+
+
+
 
 
 

@@ -3,11 +3,8 @@
 
 // TimeGetter
 
-void TimeGetter::update(unsigned long currentTime) {
+unsigned long TimeGetter::update(unsigned long currentTime) {
   _currentTime = currentTime;
-}
-
-unsigned long TimeGetter::getCurrentTime() {
   return _currentTime;
 }
 
@@ -23,7 +20,7 @@ void AutomationTimersClass::update() {
 }
 
 unsigned long AutomationTimersClass::getCurrentMillis() {
-  return defaultTimeGetter.getCurrentTime();
+  return defaultTimeGetter;
 }
 
 
@@ -40,7 +37,7 @@ Timer::Timer() : _timeGetter(defaultTimeGetter) {
 
 Timer::operator unsigned long() {
   if (_elapsedTime != ULONG_MAX) {
-    unsigned long tempElapsedTime = _timeGetter.getCurrentTime() - _startTime;
+    unsigned long tempElapsedTime = _timeGetter - _startTime;
     if (tempElapsedTime < _elapsedTime) _elapsedTime = ULONG_MAX;
     else _elapsedTime = tempElapsedTime;
   }
@@ -49,12 +46,12 @@ Timer::operator unsigned long() {
 
 void Timer::reset() {
   _elapsedTime = 0;
-  _startTime = _timeGetter.getCurrentTime();
+  _startTime = _timeGetter;
 }
 
 void Timer::set(unsigned long setTime) {
   _elapsedTime = setTime;
-  _startTime = _timeGetter.getCurrentTime() - _elapsedTime;
+  _startTime = _timeGetter - _elapsedTime;
 }
 
 
@@ -133,6 +130,10 @@ SquareWave::SquareWave(TimeGetter& timeGetter, unsigned long onPeriod, unsigned 
   _setup(onPeriod, offPeriod);
 }
 
+SquareWave::SquareWave(TimeGetter& timeGetter, int onPeriod, int offPeriod) : _timeGetter(timeGetter), _timer(timeGetter) {
+  _setup(onPeriod, offPeriod);
+}
+
 SquareWave::SquareWave(unsigned long totalPeriod, float dutyCycle) : _timeGetter(defaultTimeGetter), _timer(defaultTimeGetter) {
   _setup(totalPeriod, dutyCycle);
 }
@@ -141,8 +142,12 @@ SquareWave::SquareWave(unsigned long onPeriod, unsigned long offPeriod) : _timeG
   _setup(onPeriod, offPeriod);
 }
 
+SquareWave::SquareWave(int onPeriod, int offPeriod) : _timeGetter(defaultTimeGetter), _timer(defaultTimeGetter) {
+  _setup(onPeriod, offPeriod);
+}
+
 SquareWave::operator bool() {
-  if (_timer >= _totalPeriod) _timer.set(_timeGetter.getCurrentTime() % _totalPeriod);
+  if (_timer >= _totalPeriod) _timer.set(_timeGetter % _totalPeriod);
   if (_timer < _onPeriod) return true;
   return false;
 }
@@ -159,6 +164,12 @@ void SquareWave::_setup(unsigned long onPeriod, unsigned long offPeriod) {
   _totalPeriod = _onPeriod + offPeriod;
 }
 
+void SquareWave::_setup(int onPeriod, int offPeriod) {
+  if (onPeriod < 0) onPeriod = 0;
+  if (offPeriod < 0) offPeriod = 0;
+  _setup((unsigned long)onPeriod, (unsigned long)offPeriod);
+}
+
 
 
 // SampleTimer
@@ -173,10 +184,10 @@ SampleTimer::SampleTimer(unsigned long samplePeriod) : _timeGetter(defaultTimeGe
 
 SampleTimer::operator bool() {
   if (_timer >= _samplePeriod) {
-    _timer.set(_timeGetter.getCurrentTime() % _samplePeriod);
-    _sampleTime = _timeGetter.getCurrentTime();
+    _timer.set(_timeGetter % _samplePeriod);
+    _sampleTime = _timeGetter;
   }
-  if (_timeGetter.getCurrentTime() == _sampleTime) return true;
+  if (_timeGetter == _sampleTime) return true;
   return false;
 }
 

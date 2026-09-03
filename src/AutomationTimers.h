@@ -9,8 +9,8 @@
 
 class TimeGetter {
   public:
-    void update(unsigned long currentTime);
-    unsigned long getCurrentTime();
+    operator unsigned long() {return _currentTime;};
+    unsigned long update(unsigned long currentTime);
   protected:
     unsigned long _currentTime;
 };
@@ -70,8 +70,10 @@ class SquareWave {
   public:
     SquareWave(TimeGetter& timeGetter, unsigned long totalPeriod, float dutyCycle = 0.5);
     SquareWave(TimeGetter& timeGetter, unsigned long onPeriod, unsigned long offPeriod);
+    SquareWave(TimeGetter& timeGetter, int onPeriod, int offPeriod);
     SquareWave(unsigned long totalPeriod, float dutyCycle = 0.5);
     SquareWave(unsigned long onPeriod, unsigned long offPeriod);
+    SquareWave(int onPeriod, int offPeriod);
     operator bool();
   private:
     TimeGetter& _timeGetter;
@@ -80,6 +82,7 @@ class SquareWave {
     unsigned long _onPeriod;
     void _setup(unsigned long totalPeriod, float dutyCycle);
     void _setup(unsigned long onPeriod, unsigned long offPeriod);
+    void _setup(int onPeriod, int offPeriod);
 };
 
 class SampleTimer {
