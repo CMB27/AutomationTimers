@@ -33,7 +33,7 @@ It relies on [millis()](https://docs.arduino.cc/language-reference/en/functions/
 
 
 
-## Method
+## Methods
 
 <details><summary id="automationtimers-update"><strong>update()</strong></summary><blockquote>
 
@@ -192,8 +192,6 @@ void loop() {
 
 
 
-
-
 <details><summary id="timer"><strong>Timer</strong></summary><blockquote>
 
 ### Description
@@ -236,6 +234,13 @@ void loop() {
 
 ### Description
 Creates a `Timer` object.
+
+### Syntax
+- `Timer`
+- `Timer(timeGetter)`
+
+### Parameter
+- `timeGetter` a `TimeGetter` object.
 
 ### Example
 ``` C++
@@ -328,10 +333,12 @@ OUTPUT: ___|_________/""""""""\___
 Creates an `OnDelay` object.
 
 ### Syntax
-`OnDelay(delay)`
+- `OnDelay(delay)`
+- `OnDelay(timeGetter, delay)`
 
-### Parameter
-`delay`: the delay in milliseconds to wait before setting the output `true`. Allowed data type: `unsigned long`.
+### Parameters
+- `delay`: the delay to wait before setting the output `true`. Allowed data type: `unsigned long`.
+- `timeGetter`: a `TimeGetter` object.
 
 ### Example
 ``` C++
@@ -385,7 +392,7 @@ Changes the delay of an `OnDelay` object.
 
 ### Parameters
 - `myOnDelay`: an `OnDelay` object.
-- `delay`: the delay in milliseconds to wait before setting the output `true`. Allowed data type: `unsigned long`.
+- `delay`: the delay to wait before setting the output `true`. Allowed data type: `unsigned long`.
 
 </blockquote></details>
 
@@ -417,10 +424,12 @@ OUTPUT: ___/""""""""|"""""""""\___
 Creates an `OffDelay` object.
 
 ### Syntax
-`OffDelay(delay)`
+- `OffDelay(delay)`
+- `OffDelay(timeGetter, delay)`
 
-### Parameter
-`delay`: the delay in milliseconds to wait before setting the output `false`. Allowed data type: `unsigned long`.
+### Parameters
+- `delay`: the delay to wait before setting the output `false`. Allowed data type: `unsigned long`.
+- `timeGetter`: a `TimeGetter` object.
 
 ### Example
 ``` C++
@@ -474,7 +483,7 @@ Changes the delay of an `OffDelay` object.
 
 ### Parameters
 - `myOffDelay`: an `OffDelay` object.
-- `delay`: the delay in milliseconds to wait before setting the output `false`. Allowed data type: `unsigned long`.
+- `delay`: the delay to wait before setting the output `false`. Allowed data type: `unsigned long`.
 
 </blockquote></details>
 
@@ -506,10 +515,12 @@ OUTPUT: ___|_________/""""""""|"""""""""\___
 Creates a `Debounce` object.
 
 ### Syntax
-`Debounce(delay)`
+- `Debounce(delay)`
+- `Debounce(timeGetter, delay)`
 
-### Parameter
-`delay`: the delay in milliseconds to wait before setting the output `true` and the delay to wait before setting the output `false`. Allowed data type: `unsigned long`.
+### Parameters
+- `delay`: the delay to wait before setting the output `true` and the delay to wait before setting the output `false`. Allowed data type: `unsigned long`.
+- `timeGetter`: a `TimeGetter` object.
 
 ### Example
 ``` C++
@@ -563,7 +574,7 @@ Changes the delay of an `Debounce` object.
 
 ### Parameters
 - `myDebounce`: a `Debounce` object.
-- `delay`: the delay in milliseconds to wait before setting the output `true` and the delay to wait before setting the output `false`. Allowed data type: `unsigned long`.
+- `delay`: the delay to wait before setting the output `true` and the delay to wait before setting the output `false`. Allowed data type: `unsigned long`.
 
 </blockquote></details>
 
@@ -599,17 +610,20 @@ Creates an `SquareWave` object.
 ### Syntax
 - `SquareWave(totalPeriod, dutyCycle)`
 - `SquareWave(onPeriod, offPeriod)`
+- `SquareWave(timeGetter, totalPeriod, dutyCycle)`
+- `SquareWave(timeGetter, onPeriod, offPeriod)`
 
 ### Parameters
-- `totalPerid`: the total period of the square wave in milliseconds. Allowed data type: `unsigned long`.
+- `totalPerid`: the total period of the square wave. Allowed data type: `unsigned long`.
 - `dutyCycle`: the duty cycle of the squate wave. This should be less than `1` and greater than `0`. Allowed data type: `float`.
-- `onPerid`: the period square wave is `true`/`HIGH` in milliseconds. Allowed data type: `unsigned long`.
-- `offPerid`: the period square wave is `false`/`LOW` in milliseconds. Allowed data type: `unsigned long`.
+- `onPerid`: the period square wave is `true`/`HIGH`. Allowed data types: `int` and `unsigned long`.
+- `offPerid`: the period square wave is `false`/`LOW`. Allowed data types: `int` and `unsigned long`.
+- `timeGetter`: a `TimeGetter` object.
 
 ### Example
 ``` C++
-SquareWave myFirstSquareWave(2000, 0.5);
-SquareWave mySecondSquareWave(1000, 1000);
+SquareWave myFirstSquareWave(2000, 0.5); // total period, duty cycle
+SquareWave mySecondSquareWave(1000, 1000); // on time, off time
 ```
 
 </blockquote></details>
@@ -775,10 +789,13 @@ OUTPUT: _____/             \          |  _____
 Creates a `LinearRamp` object.
 
 ### Syntax
-`LinearRamp(rate)`
+- `LinearRamp(rate)`
+- `LinearRamp(timeGetter, rate)`
 
-### Parameter
-`rate`: the inital ramp rate in units per millisecond. Allowed data type: `float`.
+### Parameters
+- `rate`: the inital ramp rate. When not using the `timeGetter` parameter, this is in units per millisecond. Allowed data type: `float`.
+- `timeGetter`: a `TimeGetter` object.
+
 
 ### Example
 ``` C++
@@ -823,7 +840,9 @@ Returns the value of the output. Data type: `long`.
 <details><summary id="linearramp-setrate"><strong>setRate()</strong></summary><blockquote>
 
 ### Description
-sets the ramp rate in units per millisecond of a `LinearRamp` object.
+sets the ramp rate of a `LinearRamp` object.
+When not using a user defined `timeGetter`, this is units per millisecond.
+Otherwise it is in units per whatever time units the associated `TimeGetter` is getting.
 
 ### Syntax
 `myRamp.setRate(rate)`
